@@ -477,38 +477,10 @@ fn main() {
             // Use safe ARM CPU string that excludes i8mm instructions
             config.define("GGML_CPU_ARM_ARCH", "armv8-a+dotprod");
             
-            // Only add -mno-i8mm flag if compiler supports it
-            // This prevents build failures on older Clang versions that don't recognize the flag
-            let should_add_i8mm_flag = {
-                // Test compiler support for -mno-i8mm by trying to compile a simple test
-                let test_result = std::process::Command::new("cc")
-                    .args(&["-mno-i8mm", "-c", "-x", "c", "-", "-o", "/dev/null"])
-                    .stdin(std::process::Stdio::piped())
-                    .stdout(std::process::Stdio::null())
-                    .stderr(std::process::Stdio::null())
-                    .spawn()
-                    .and_then(|mut child| {
-                        use std::io::Write;
-                        if let Some(stdin) = child.stdin.as_mut() {
-                            let _ = stdin.write_all(b"int main() { return 0; }");
-                            let _ = stdin.flush();
-                        }
-                        child.wait()
-                    })
-                    .map(|status| status.success())
-                    .unwrap_or(false);
-                
-                debug_log!("Compiler supports -mno-i8mm: {}", test_result);
-                test_result
-            };
-            
-            if should_add_i8mm_flag {
-                config.cflag("-mno-i8mm");
-                config.cxxflag("-mno-i8mm");
-                debug_log!("Applied Apple AArch64 i8mm workaround: CPU=armv8-a+dotprod, flags=-mno-i8mm");
-            } else {
-                debug_log!("Applied Apple AArch64 i8mm workaround: CPU=armv8-a+dotprod (skipped -mno-i8mm due to compiler incompatibility)");
-            }
+            // Skip -mno-i8mm flags entirely for better compatibility
+            // The armv8-a+dotprod CPU string is sufficient to prevent i8mm usage
+            // while maintaining compatibility with older Clang versions
+            debug_log!("Applied Apple AArch64 i8mm workaround: CPU=armv8-a+dotprod (no compiler flags for compatibility)");
         }
     }
 
