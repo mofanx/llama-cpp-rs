@@ -479,34 +479,28 @@ fn main() {
             
             // Only add -mno-i8mm flag if compiler supports it
             // This prevents build failures on older Clang versions that don't recognize the flag
-            let cc_version = std::process::Command::new("cc")
-                .args(&["-dumpversion"])
-                .output();
-            
-            let should_add_i8mm_flag = cc_version
-                .map(|output| {
-                    let version = String::from_utf8_lossy(&output.stdout);
-                    // Most modern Clang versions support -mno-i8mm, but we test it directly
-                    let test_result = std::process::Command::new("cc")
-                        .args(&["-mno-i8mm", "-E", "-", "-o", "/dev/null"])
-                        .stdin(std::process::Stdio::piped())
-                        .stdout(std::process::Stdio::null())
-                        .stderr(std::process::Stdio::null())
-                        .spawn()
-                        .and_then(|mut child| {
-                            use std::io::Write;
-                            if let Some(stdin) = child.stdin.as_mut() {
-                                let _ = stdin.write_all(b"int main() { return 0; }");
-                            }
-                            child.wait()
-                        })
-                        .map(|status| status.success())
-                        .unwrap_or(false);
-                    
-                    debug_log!("Clang version: {}, supports -mno-i8mm: {}", version.trim(), test_result);
-                    test_result
-                })
-                .unwrap_or(false);
+            let should_add_i8mm_flag = {
+                // Test compiler support for -mno-i8mm by trying to compile a simple test
+                let test_result = std::process::Command::new("cc")
+                    .args(&["-mno-i8mm", "-c", "-x", "c", "-", "-o", "/dev/null"])
+                    .stdin(std::process::Stdio::piped())
+                    .stdout(std::process::Stdio::null())
+                    .stderr(std::process::Stdio::null())
+                    .spawn()
+                    .and_then(|mut child| {
+                        use std::io::Write;
+                        if let Some(stdin) = child.stdin.as_mut() {
+                            let _ = stdin.write_all(b"int main() { return 0; }");
+                            let _ = stdin.flush();
+                        }
+                        child.wait()
+                    })
+                    .map(|status| status.success())
+                    .unwrap_or(false);
+                
+                debug_log!("Compiler supports -mno-i8mm: {}", test_result);
+                test_result
+            };
             
             if should_add_i8mm_flag {
                 config.cflag("-mno-i8mm");
