@@ -454,9 +454,9 @@ fn main() {
         config.define("LLAMA_BUILD_TOOLS", "ON");
     }
 
-    // Pass CMAKE_ environment variables down to CMake
+    // Pass CMAKE_ and GGML_ environment variables down to CMake
     for (key, value) in env::vars() {
-        if key.starts_with("CMAKE_") {
+        if key.starts_with("CMAKE_") || key.starts_with("GGML_") {
             config.define(&key, &value);
         }
     }
@@ -468,6 +468,21 @@ fn main() {
 
     if matches!(target_os, TargetOs::Apple(_)) {
         config.define("GGML_BLAS", "OFF");
+        
+        // Enable Metal by default for Apple builds
+        config.define("GGML_METAL", "ON");
+        
+        // Handle Apple AArch64 i8mm compatibility issues
+        if target_triple.contains("aarch64-apple") {
+            // Use safe ARM CPU string that excludes i8mm instructions
+            config.define("GGML_CPU_ARM_ARCH", "armv8-a+dotprod");
+            
+            // Explicitly disable i8mm in compiler flags
+            config.cflag("-mno-i8mm");
+            config.cxxflag("-mno-i8mm");
+            
+            debug_log!("Applied Apple AArch64 i8mm workaround: CPU=armv8-a+dotprod, flags=-mno-i8mm");
+        }
     }
 
     if (matches!(target_os, TargetOs::Windows(WindowsVariant::Msvc))
