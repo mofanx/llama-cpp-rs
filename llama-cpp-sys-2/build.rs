@@ -473,7 +473,7 @@ fn main() {
         config.define("GGML_METAL", "ON");
         
         // Handle Apple AArch64 i8mm compatibility issues
-        if target_triple.contains("aarch64-apple") {
+        if target_triple == "aarch64-apple-darwin" {
             // Use safe ARM CPU string that excludes i8mm instructions
             config.define("GGML_CPU_ARM_ARCH", "armv8-a+dotprod");
             
