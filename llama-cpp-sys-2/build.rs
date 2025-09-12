@@ -472,15 +472,23 @@ fn main() {
         // Enable Metal by default for Apple builds
         config.define("GGML_METAL", "ON");
         
-        // Handle Apple AArch64 i8mm compatibility issues
+        // Handle Apple AArch64 i8mm compatibility issues with production-grade solution
         if target_triple == "aarch64-apple-darwin" {
-            // Use safe ARM CPU string that excludes i8mm instructions
+            // Force GGML_NATIVE=OFF so GGML_CPU_ARM_ARCH is honored
+            config.define("GGML_NATIVE", "OFF");
+            
+            // Set conservative baseline with dotprod but no i8mm
+            // This prevents the mixed-ISA inlining violation
             config.define("GGML_CPU_ARM_ARCH", "armv8-a+dotprod");
             
-            // Explicitly disable i8mm in GGML build system
+            // Temporarily disable i8mm until proper TU split is implemented upstream
+            // TODO: Remove this when ggml implements separate i8mm TU with proper dispatch
             config.define("GGML_ARM_I8MM", "OFF");
             
-            debug_log!("Applied Apple AArch64 i8mm workaround: CPU=armv8-a+dotprod, GGML_ARM_I8MM=OFF");
+            // Enable Metal for performance on Apple Silicon
+            config.define("GGML_METAL", "ON");
+            
+            debug_log!("Applied Apple AArch64 mixed-ISA fix: NATIVE=OFF, CPU=armv8-a+dotprod, I8MM=OFF, METAL=ON");
         }
     }
 
