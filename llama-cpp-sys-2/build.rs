@@ -477,10 +477,10 @@ fn main() {
             // Use safe ARM CPU string that excludes i8mm instructions
             config.define("GGML_CPU_ARM_ARCH", "armv8-a+dotprod");
             
-            // Skip -mno-i8mm flags entirely for better compatibility
-            // The armv8-a+dotprod CPU string is sufficient to prevent i8mm usage
-            // while maintaining compatibility with older Clang versions
-            debug_log!("Applied Apple AArch64 i8mm workaround: CPU=armv8-a+dotprod (no compiler flags for compatibility)");
+            // Explicitly disable i8mm in GGML build system
+            config.define("GGML_ARM_I8MM", "OFF");
+            
+            debug_log!("Applied Apple AArch64 i8mm workaround: CPU=armv8-a+dotprod, GGML_ARM_I8MM=OFF");
         }
     }
 
