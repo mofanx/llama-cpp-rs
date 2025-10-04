@@ -1,7 +1,7 @@
 //! A safe wrapper around `llama_model_params`.
 
 use crate::model::params::kv_overrides::KvOverrides;
-use std::ffi::{c_char, CStr};
+use std::ffi::{c_char, CStr, CString};
 use std::fmt::{Debug, Formatter};
 use std::pin::Pin;
 use std::ptr::null;
@@ -13,6 +13,10 @@ pub mod kv_overrides;
 pub struct LlamaModelParams {
     pub(crate) params: llama_cpp_sys_2::llama_model_params,
     kv_overrides: Vec<llama_cpp_sys_2::llama_model_kv_override>,
+    /// Storage for tensor buffer override patterns (keeps CStrings alive)
+    tensor_override_patterns: Vec<CString>,
+    /// Tensor buffer overrides (NULL-terminated array)
+    tensor_overrides: Vec<llama_cpp_sys_2::llama_model_tensor_buft_override>,
 }
 
 impl Debug for LlamaModelParams {
@@ -174,6 +178,91 @@ impl LlamaModelParams {
         self.params.use_mlock = use_mlock;
         self
     }
+
+    /// Offload ALL MoE (Mixture of Experts) expert tensors to CPU.
+    ///
+    /// This reduces VRAM usage for large MoE models (e.g., GPT-OSS, Qwen) by keeping
+    /// expert tensors in system RAM while attention layers remain on GPU.
+    ///
+    /// Matches llama.cpp `--cpu-moe` flag behavior.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use llama_cpp_2::model::params::LlamaModelParams;
+    /// let params = LlamaModelParams::default()
+    ///     .with_n_gpu_layers(999)  // Offload all non-expert layers to GPU
+    ///     .with_cpu_moe_all();     // But keep expert tensors in CPU
+    /// ```
+    #[must_use]
+    pub fn with_cpu_moe_all(mut self) -> Self {
+        self.push_tensor_override(r"\.ffn_(up|down|gate)_exps");
+        self
+    }
+
+    /// Offload the first N MoE layers' expert tensors to CPU.
+    ///
+    /// This allows fine-grained control over VRAM usage by offloading only some expert layers.
+    /// Typically used when you have limited VRAM and want to balance GPU/CPU usage.
+    ///
+    /// Matches llama.cpp `--n-cpu-moe N` flag behavior.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use llama_cpp_2::model::params::LlamaModelParams;
+    /// let params = LlamaModelParams::default()
+    ///     .with_n_gpu_layers(999)  // Offload layers to GPU
+    ///     .with_n_cpu_moe(10);     // Except first 10 MoE expert layers -> CPU
+    /// ```
+    #[must_use]
+    pub fn with_n_cpu_moe(mut self, n: usize) -> Self {
+        for i in 0..n {
+            let pattern = format!(r"blk\.{}\.ffn_(up|down|gate)_exps", i);
+            self.push_tensor_override(&pattern);
+        }
+        self
+    }
+
+    /// Internal: Push a tensor buffer override pattern.
+    ///
+    /// Patterns are regex expressions matched against tensor names in the model.
+    /// Matched tensors are allocated using CPU buffer type instead of GPU.
+    fn push_tensor_override(&mut self, pattern: &str) {
+        // Create and store CString to keep it alive
+        let c_pattern = CString::new(pattern)
+            .expect("pattern must not contain NUL bytes");
+        
+        self.tensor_override_patterns.push(c_pattern);
+        
+        // Get CPU buffer type
+        let cpu_buft = unsafe { llama_cpp_sys_2::ggml_backend_cpu_buffer_type() };
+        
+        // Create override entry pointing to the stored CString
+        let override_entry = llama_cpp_sys_2::llama_model_tensor_buft_override {
+            pattern: self.tensor_override_patterns.last().unwrap().as_ptr(),
+            buft: cpu_buft,
+        };
+        
+        // Remove old NULL terminator if it exists
+        if let Some(last) = self.tensor_overrides.last() {
+            if last.pattern.is_null() {
+                self.tensor_overrides.pop();
+            }
+        }
+        
+        // Add new entry
+        self.tensor_overrides.push(override_entry);
+        
+        // Re-add NULL terminator (pattern=NULL signals end of array to C)
+        self.tensor_overrides.push(llama_cpp_sys_2::llama_model_tensor_buft_override {
+            pattern: std::ptr::null(),
+            buft: std::ptr::null_mut(),
+        });
+        
+        // Update C params pointer
+        self.params.tensor_buft_overrides = self.tensor_overrides.as_ptr();
+    }
 }
 
 /// Default parameters for `LlamaModel`. (as defined in llama.cpp by `llama_model_default_params`)
@@ -191,7 +280,7 @@ impl Default for LlamaModelParams {
         let default_params = unsafe { llama_cpp_sys_2::llama_model_default_params() };
         LlamaModelParams {
             params: default_params,
-            // push the next one to ensure we maintain the iterator invariant of ending with a 0
+            // push the next one to ensure we maintain the iterator invariant of ending with a 0      
             kv_overrides: vec![llama_cpp_sys_2::llama_model_kv_override {
                 key: [0; 128],
                 tag: 0,
@@ -199,6 +288,8 @@ impl Default for LlamaModelParams {
                     val_i64: 0,
                 },
             }],
+            tensor_override_patterns: Vec::new(),
+            tensor_overrides: Vec::new(),
         }
     }
 }
