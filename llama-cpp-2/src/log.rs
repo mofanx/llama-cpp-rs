@@ -84,13 +84,13 @@ impl Module {
 }
 
 fn meta_for_level(
-    level: llama_cpp_sys_2::ggml_log_level,
+    level: shimmy_llama_cpp_sys_2::ggml_log_level,
 ) -> (&'static Metadata<'static>, &'static OverridableFields) {
     match level {
-        llama_cpp_sys_2::GGML_LOG_LEVEL_DEBUG => (&DEBUG_META, &DEBUG_FIELDS),
-        llama_cpp_sys_2::GGML_LOG_LEVEL_INFO => (&INFO_META, &INFO_FIELDS),
-        llama_cpp_sys_2::GGML_LOG_LEVEL_WARN => (&WARN_META, &WARN_FIELDS),
-        llama_cpp_sys_2::GGML_LOG_LEVEL_ERROR => (&ERROR_META, &ERROR_FIELDS),
+        shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_DEBUG => (&DEBUG_META, &DEBUG_FIELDS),
+        shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_INFO => (&INFO_META, &INFO_FIELDS),
+        shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_WARN => (&WARN_META, &WARN_FIELDS),
+        shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_ERROR => (&ERROR_META, &ERROR_FIELDS),
         _ => {
             unreachable!("Illegal log level to be called here")
         }
@@ -100,7 +100,7 @@ fn meta_for_level(
 pub(super) struct State {
     pub(super) options: LogOptions,
     module: Module,
-    buffered: std::sync::Mutex<Option<(llama_cpp_sys_2::ggml_log_level, String)>>,
+    buffered: std::sync::Mutex<Option<(shimmy_llama_cpp_sys_2::ggml_log_level, String)>>,
     previous_level: std::sync::atomic::AtomicI32,
     is_buffering: std::sync::atomic::AtomicBool,
 }
@@ -116,7 +116,7 @@ impl State {
         }
     }
 
-    fn generate_log(target: Module, level: llama_cpp_sys_2::ggml_log_level, text: &str) {
+    fn generate_log(target: Module, level: shimmy_llama_cpp_sys_2::ggml_log_level, text: &str) {
         // Annoying but tracing requires that the provided target name is a string literal and
         // even &'static str isn't enough so we have to duplicate the generation AND we can't even
         // extract the interrior module within llama.cpp/ggml to be able to propagate it forward.
@@ -172,7 +172,7 @@ impl State {
             let level = self
                 .previous_level
                 .load(std::sync::atomic::Ordering::Acquire)
-                as llama_cpp_sys_2::ggml_log_level;
+                as shimmy_llama_cpp_sys_2::ggml_log_level;
             tracing::warn!(
                 inferred_level = level,
                 text = text,
@@ -184,9 +184,9 @@ impl State {
     }
 
     /// Start buffering a message. Not the CONT log level and text is missing a newline.
-    pub(super) fn buffer_non_cont(&self, level: llama_cpp_sys_2::ggml_log_level, text: &str) {
+    pub(super) fn buffer_non_cont(&self, level: shimmy_llama_cpp_sys_2::ggml_log_level, text: &str) {
         debug_assert!(!text.ends_with('\n'));
-        debug_assert_ne!(level, llama_cpp_sys_2::GGML_LOG_LEVEL_CONT);
+        debug_assert_ne!(level, shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_CONT);
 
         if let Some((previous_log_level, buffer)) = self
             .buffered
@@ -210,9 +210,9 @@ impl State {
     }
 
     // Emit a normal unbuffered log message (not the CONT log level and the text ends with a newline).
-    pub(super) fn emit_non_cont_line(&self, level: llama_cpp_sys_2::ggml_log_level, text: &str) {
+    pub(super) fn emit_non_cont_line(&self, level: shimmy_llama_cpp_sys_2::ggml_log_level, text: &str) {
         debug_assert!(text.ends_with('\n'));
-        debug_assert_ne!(level, llama_cpp_sys_2::GGML_LOG_LEVEL_CONT);
+        debug_assert_ne!(level, shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_CONT);
 
         if self
             .is_buffering
@@ -232,15 +232,15 @@ impl State {
         debug_assert_eq!(newline, "\n");
 
         match level {
-            llama_cpp_sys_2::GGML_LOG_LEVEL_NONE => {
+            shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_NONE => {
                 // TODO: Support logging this to stdout directly via options?
                 tracing::info!(no_log_level = true, text);
             }
-            llama_cpp_sys_2::GGML_LOG_LEVEL_DEBUG
-            | llama_cpp_sys_2::GGML_LOG_LEVEL_INFO
-            | llama_cpp_sys_2::GGML_LOG_LEVEL_WARN
-            | llama_cpp_sys_2::GGML_LOG_LEVEL_ERROR => Self::generate_log(self.module, level, text),
-            llama_cpp_sys_2::GGML_LOG_LEVEL_CONT => unreachable!(),
+            shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_DEBUG
+            | shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_INFO
+            | shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_WARN
+            | shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_ERROR => Self::generate_log(self.module, level, text),
+            shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_CONT => unreachable!(),
             _ => {
                 tracing::warn!(
                     level = level,
@@ -254,21 +254,21 @@ impl State {
 
     pub(super) fn update_previous_level_for_disabled_log(
         &self,
-        level: llama_cpp_sys_2::ggml_log_level,
+        level: shimmy_llama_cpp_sys_2::ggml_log_level,
     ) {
-        if level != llama_cpp_sys_2::GGML_LOG_LEVEL_CONT {
+        if level != shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_CONT {
             self.previous_level
                 .store(level as i32, std::sync::atomic::Ordering::Release);
         }
     }
 
     /// Checks whether the given log level is enabled by the current tracing subscriber.
-    pub(super) fn is_enabled_for_level(&self, level: llama_cpp_sys_2::ggml_log_level) -> bool {
+    pub(super) fn is_enabled_for_level(&self, level: shimmy_llama_cpp_sys_2::ggml_log_level) -> bool {
         // CONT logs do not need to check if they are enabled.
-        let level = if level == llama_cpp_sys_2::GGML_LOG_LEVEL_CONT {
+        let level = if level == shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_CONT {
             self.previous_level
                 .load(std::sync::atomic::Ordering::Relaxed)
-                as llama_cpp_sys_2::ggml_log_level
+                as shimmy_llama_cpp_sys_2::ggml_log_level
         } else {
             level
         };
@@ -339,12 +339,12 @@ mod tests {
         let log_ptr = log_state.as_mut() as *mut State as *mut std::os::raw::c_void;
 
         logs_to_trace(
-            llama_cpp_sys_2::GGML_LOG_LEVEL_DEBUG,
+            shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_DEBUG,
             c"Hello ".as_ptr(),
             log_ptr,
         );
         logs_to_trace(
-            llama_cpp_sys_2::GGML_LOG_LEVEL_CONT,
+            shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_CONT,
             c"world\n".as_ptr(),
             log_ptr,
         );
@@ -352,17 +352,17 @@ mod tests {
         assert!(logger.logs.lock().unwrap().is_empty());
 
         logs_to_trace(
-            llama_cpp_sys_2::GGML_LOG_LEVEL_DEBUG,
+            shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_DEBUG,
             c"Hello ".as_ptr(),
             log_ptr,
         );
         logs_to_trace(
-            llama_cpp_sys_2::GGML_LOG_LEVEL_CONT,
+            shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_CONT,
             c"world".as_ptr(),
             log_ptr,
         );
         logs_to_trace(
-            llama_cpp_sys_2::GGML_LOG_LEVEL_CONT,
+            shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_CONT,
             c"\n".as_ptr(),
             log_ptr,
         );
@@ -375,12 +375,12 @@ mod tests {
         let log_ptr = log_state.as_mut() as *mut State as *mut std::os::raw::c_void;
 
         logs_to_trace(
-            llama_cpp_sys_2::GGML_LOG_LEVEL_INFO,
+            shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_INFO,
             c"Hello ".as_ptr(),
             log_ptr,
         );
         logs_to_trace(
-            llama_cpp_sys_2::GGML_LOG_LEVEL_CONT,
+            shimmy_llama_cpp_sys_2::GGML_LOG_LEVEL_CONT,
             c"world\n".as_ptr(),
             log_ptr,
         );

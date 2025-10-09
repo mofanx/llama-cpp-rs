@@ -25,26 +25,26 @@ use crate::token::LlamaToken;
 /// let audio_chunk = MtmdInputChunkType::Audio;
 ///
 /// assert_eq!(text_chunk, MtmdInputChunkType::Text);
-/// assert_eq!(text_chunk, llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_TEXT.into());
+/// assert_eq!(text_chunk, shimmy_llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_TEXT.into());
 /// assert_ne!(text_chunk, image_chunk);
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum MtmdInputChunkType {
     /// Text input chunk
-    Text = llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_TEXT as _,
+    Text = shimmy_llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_TEXT as _,
     /// Image input chunk
-    Image = llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_IMAGE as _,
+    Image = shimmy_llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_IMAGE as _,
     /// Audio input chunk
-    Audio = llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_AUDIO as _,
+    Audio = shimmy_llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_AUDIO as _,
 }
 
-impl From<llama_cpp_sys_2::mtmd_input_chunk_type> for MtmdInputChunkType {
-    fn from(chunk_type: llama_cpp_sys_2::mtmd_input_chunk_type) -> Self {
+impl From<shimmy_llama_cpp_sys_2::mtmd_input_chunk_type> for MtmdInputChunkType {
+    fn from(chunk_type: shimmy_llama_cpp_sys_2::mtmd_input_chunk_type) -> Self {
         match chunk_type {
-            llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_TEXT => MtmdInputChunkType::Text,
-            llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_IMAGE => MtmdInputChunkType::Image,
-            llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_AUDIO => MtmdInputChunkType::Audio,
+            shimmy_llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_TEXT => MtmdInputChunkType::Text,
+            shimmy_llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_IMAGE => MtmdInputChunkType::Image,
+            shimmy_llama_cpp_sys_2::MTMD_INPUT_CHUNK_TYPE_AUDIO => MtmdInputChunkType::Audio,
             _ => panic!("Unknown MTMD input chunk type: {chunk_type}"),
         }
     }
@@ -79,13 +79,13 @@ pub struct MtmdContextParams {
 
 impl Default for MtmdContextParams {
     fn default() -> Self {
-        unsafe { llama_cpp_sys_2::mtmd_context_params_default() }.into()
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_context_params_default() }.into()
     }
 }
 
-impl From<&MtmdContextParams> for llama_cpp_sys_2::mtmd_context_params {
+impl From<&MtmdContextParams> for shimmy_llama_cpp_sys_2::mtmd_context_params {
     fn from(params: &MtmdContextParams) -> Self {
-        let mut context = unsafe { llama_cpp_sys_2::mtmd_context_params_default() };
+        let mut context = unsafe { shimmy_llama_cpp_sys_2::mtmd_context_params_default() };
         let MtmdContextParams {
             use_gpu,
             print_timings,
@@ -102,8 +102,8 @@ impl From<&MtmdContextParams> for llama_cpp_sys_2::mtmd_context_params {
     }
 }
 
-impl From<llama_cpp_sys_2::mtmd_context_params> for MtmdContextParams {
-    fn from(params: llama_cpp_sys_2::mtmd_context_params) -> Self {
+impl From<shimmy_llama_cpp_sys_2::mtmd_context_params> for MtmdContextParams {
+    fn from(params: shimmy_llama_cpp_sys_2::mtmd_context_params) -> Self {
         Self {
             use_gpu: params.use_gpu,
             print_timings: params.print_timings,
@@ -142,7 +142,7 @@ pub struct MtmdInputText {
 /// text, images, and audio through llama.cpp's multimodal interface.
 #[derive(Debug)]
 pub struct MtmdContext {
-    pub(crate) context: NonNull<llama_cpp_sys_2::mtmd_context>,
+    pub(crate) context: NonNull<shimmy_llama_cpp_sys_2::mtmd_context>,
 }
 
 impl MtmdContext {
@@ -169,10 +169,10 @@ impl MtmdContext {
         params: &MtmdContextParams,
     ) -> Result<Self, MtmdInitError> {
         let path_cstr = CString::new(mmproj_path)?;
-        let ctx_params = llama_cpp_sys_2::mtmd_context_params::from(params);
+        let ctx_params = shimmy_llama_cpp_sys_2::mtmd_context_params::from(params);
 
         let context = unsafe {
-            llama_cpp_sys_2::mtmd_init_from_file(
+            shimmy_llama_cpp_sys_2::mtmd_init_from_file(
                 path_cstr.as_ptr(),
                 text_model.model.as_ptr(),
                 ctx_params,
@@ -186,7 +186,7 @@ impl MtmdContext {
     /// Check whether non-causal attention mask is needed before `llama_decode`.
     #[must_use]
     pub fn decode_use_non_causal(&self) -> bool {
-        unsafe { llama_cpp_sys_2::mtmd_decode_use_non_causal(self.context.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_decode_use_non_causal(self.context.as_ptr()) }
     }
 
     /// Check whether the current model uses M-RoPE for `llama_decode`.
@@ -195,26 +195,26 @@ impl MtmdContext {
     /// are calculated for multimodal inputs.
     #[must_use]
     pub fn decode_use_mrope(&self) -> bool {
-        unsafe { llama_cpp_sys_2::mtmd_decode_use_mrope(self.context.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_decode_use_mrope(self.context.as_ptr()) }
     }
 
     /// Check whether the current model supports vision input.
     #[must_use]
     pub fn support_vision(&self) -> bool {
-        unsafe { llama_cpp_sys_2::mtmd_support_vision(self.context.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_support_vision(self.context.as_ptr()) }
     }
 
     /// Check whether the current model supports audio input.
     #[must_use]
     pub fn support_audio(&self) -> bool {
-        unsafe { llama_cpp_sys_2::mtmd_support_audio(self.context.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_support_audio(self.context.as_ptr()) }
     }
 
     /// Get audio bitrate in Hz (e.g., 16000 for Whisper).
     /// Returns None if audio is not supported.
     #[must_use]
     pub fn get_audio_bitrate(&self) -> Option<u32> {
-        let rate = unsafe { llama_cpp_sys_2::mtmd_get_audio_bitrate(self.context.as_ptr()) };
+        let rate = unsafe { shimmy_llama_cpp_sys_2::mtmd_get_audio_bitrate(self.context.as_ptr()) };
         (rate > 0).then_some(rate.unsigned_abs())
     }
 
@@ -260,20 +260,20 @@ impl MtmdContext {
     ) -> Result<MtmdInputChunks, MtmdTokenizeError> {
         let chunks = MtmdInputChunks::new();
         let text_cstring = CString::new(text.text)?;
-        let input_text = llama_cpp_sys_2::mtmd_input_text {
+        let input_text = shimmy_llama_cpp_sys_2::mtmd_input_text {
             text: text_cstring.as_ptr(),
             add_special: text.add_special,
             parse_special: text.parse_special,
         };
 
         // Create bitmap pointers
-        let bitmap_ptrs: Vec<*const llama_cpp_sys_2::mtmd_bitmap> = bitmaps
+        let bitmap_ptrs: Vec<*const shimmy_llama_cpp_sys_2::mtmd_bitmap> = bitmaps
             .iter()
             .map(|b| b.bitmap.as_ptr().cast_const())
             .collect();
 
         let result = unsafe {
-            llama_cpp_sys_2::mtmd_tokenize(
+            shimmy_llama_cpp_sys_2::mtmd_tokenize(
                 self.context.as_ptr(),
                 chunks.chunks.as_ptr(),
                 &raw const input_text,
@@ -309,7 +309,7 @@ impl MtmdContext {
     /// Returns `MtmdEncodeError::EncodeFailure` if encoding fails.
     pub fn encode_chunk(&self, chunk: &MtmdInputChunk) -> Result<(), MtmdEncodeError> {
         let result = unsafe {
-            llama_cpp_sys_2::mtmd_encode_chunk(self.context.as_ptr(), chunk.chunk.as_ptr())
+            shimmy_llama_cpp_sys_2::mtmd_encode_chunk(self.context.as_ptr(), chunk.chunk.as_ptr())
         };
 
         if result == 0 {
@@ -322,7 +322,7 @@ impl MtmdContext {
 
 impl Drop for MtmdContext {
     fn drop(&mut self) {
-        unsafe { llama_cpp_sys_2::mtmd_free(self.context.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_free(self.context.as_ptr()) }
     }
 }
 
@@ -333,7 +333,7 @@ impl Drop for MtmdContext {
 /// For audio, data is stored as PCM F32 samples.
 #[derive(Debug, Clone)]
 pub struct MtmdBitmap {
-    pub(crate) bitmap: NonNull<llama_cpp_sys_2::mtmd_bitmap>,
+    pub(crate) bitmap: NonNull<shimmy_llama_cpp_sys_2::mtmd_bitmap>,
 }
 
 impl MtmdBitmap {
@@ -371,7 +371,7 @@ impl MtmdBitmap {
             return Err(MtmdBitmapError::InvalidDataSize);
         }
 
-        let bitmap = unsafe { llama_cpp_sys_2::mtmd_bitmap_init(nx, ny, data.as_ptr()) };
+        let bitmap = unsafe { shimmy_llama_cpp_sys_2::mtmd_bitmap_init(nx, ny, data.as_ptr()) };
 
         let bitmap = NonNull::new(bitmap).ok_or(MtmdBitmapError::NullResult)?;
         Ok(Self { bitmap })
@@ -406,7 +406,7 @@ impl MtmdBitmap {
     /// ```
     pub fn from_audio_data(data: &[f32]) -> Result<Self, MtmdBitmapError> {
         let bitmap =
-            unsafe { llama_cpp_sys_2::mtmd_bitmap_init_from_audio(data.len(), data.as_ptr()) };
+            unsafe { shimmy_llama_cpp_sys_2::mtmd_bitmap_init_from_audio(data.len(), data.as_ptr()) };
 
         let bitmap = NonNull::new(bitmap).ok_or(MtmdBitmapError::NullResult)?;
         Ok(Self { bitmap })
@@ -438,7 +438,7 @@ impl MtmdBitmap {
     pub fn from_file(ctx: &MtmdContext, path: &str) -> Result<Self, MtmdBitmapError> {
         let path_cstr = CString::new(path)?;
         let bitmap = unsafe {
-            llama_cpp_sys_2::mtmd_helper_bitmap_init_from_file(
+            shimmy_llama_cpp_sys_2::mtmd_helper_bitmap_init_from_file(
                 ctx.context.as_ptr(),
                 path_cstr.as_ptr(),
             )
@@ -472,7 +472,7 @@ impl MtmdBitmap {
     /// This function is thread-safe.
     pub fn from_buffer(ctx: &MtmdContext, data: &[u8]) -> Result<Self, MtmdBitmapError> {
         let bitmap = unsafe {
-            llama_cpp_sys_2::mtmd_helper_bitmap_init_from_buf(
+            shimmy_llama_cpp_sys_2::mtmd_helper_bitmap_init_from_buf(
                 ctx.context.as_ptr(),
                 data.as_ptr(),
                 data.len(),
@@ -486,13 +486,13 @@ impl MtmdBitmap {
     /// Get bitmap width in pixels.
     #[must_use]
     pub fn nx(&self) -> u32 {
-        unsafe { llama_cpp_sys_2::mtmd_bitmap_get_nx(self.bitmap.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_bitmap_get_nx(self.bitmap.as_ptr()) }
     }
 
     /// Get bitmap height in pixels.
     #[must_use]
     pub fn ny(&self) -> u32 {
-        unsafe { llama_cpp_sys_2::mtmd_bitmap_get_ny(self.bitmap.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_bitmap_get_ny(self.bitmap.as_ptr()) }
     }
 
     /// Get bitmap data as a byte slice.
@@ -501,15 +501,15 @@ impl MtmdBitmap {
     /// For audio: PCM F32 format with length `n_samples * 4`
     #[must_use]
     pub fn data(&self) -> &[u8] {
-        let ptr = unsafe { llama_cpp_sys_2::mtmd_bitmap_get_data(self.bitmap.as_ptr()) };
-        let len = unsafe { llama_cpp_sys_2::mtmd_bitmap_get_n_bytes(self.bitmap.as_ptr()) };
+        let ptr = unsafe { shimmy_llama_cpp_sys_2::mtmd_bitmap_get_data(self.bitmap.as_ptr()) };
+        let len = unsafe { shimmy_llama_cpp_sys_2::mtmd_bitmap_get_n_bytes(self.bitmap.as_ptr()) };
         unsafe { slice::from_raw_parts(ptr, len) }
     }
 
     /// Check if this bitmap contains audio data (vs image data).
     #[must_use]
     pub fn is_audio(&self) -> bool {
-        unsafe { llama_cpp_sys_2::mtmd_bitmap_is_audio(self.bitmap.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_bitmap_is_audio(self.bitmap.as_ptr()) }
     }
 
     /// Get the bitmap's optional ID string.
@@ -518,7 +518,7 @@ impl MtmdBitmap {
     /// based on a hash of the bitmap data.
     #[must_use]
     pub fn id(&self) -> Option<String> {
-        let ptr = unsafe { llama_cpp_sys_2::mtmd_bitmap_get_id(self.bitmap.as_ptr()) };
+        let ptr = unsafe { shimmy_llama_cpp_sys_2::mtmd_bitmap_get_id(self.bitmap.as_ptr()) };
         if ptr.is_null() {
             None
         } else {
@@ -555,7 +555,7 @@ impl MtmdBitmap {
     pub fn set_id(&self, id: &str) -> Result<(), std::ffi::NulError> {
         let id_cstr = CString::new(id)?;
         unsafe {
-            llama_cpp_sys_2::mtmd_bitmap_set_id(self.bitmap.as_ptr(), id_cstr.as_ptr());
+            shimmy_llama_cpp_sys_2::mtmd_bitmap_set_id(self.bitmap.as_ptr(), id_cstr.as_ptr());
         }
         Ok(())
     }
@@ -563,7 +563,7 @@ impl MtmdBitmap {
 
 impl Drop for MtmdBitmap {
     fn drop(&mut self) {
-        unsafe { llama_cpp_sys_2::mtmd_bitmap_free(self.bitmap.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_bitmap_free(self.bitmap.as_ptr()) }
     }
 }
 
@@ -574,7 +574,7 @@ impl Drop for MtmdBitmap {
 /// with text chunks containing tokens and media chunks containing embeddings.
 #[derive(Debug)]
 pub struct MtmdInputChunks {
-    pub(crate) chunks: NonNull<llama_cpp_sys_2::mtmd_input_chunks>,
+    pub(crate) chunks: NonNull<shimmy_llama_cpp_sys_2::mtmd_input_chunks>,
 }
 
 impl Default for MtmdInputChunks {
@@ -600,7 +600,7 @@ impl MtmdInputChunks {
     /// ```
     #[must_use]
     pub fn new() -> Self {
-        let chunks = unsafe { llama_cpp_sys_2::mtmd_input_chunks_init() };
+        let chunks = unsafe { shimmy_llama_cpp_sys_2::mtmd_input_chunks_init() };
         let chunks = NonNull::new(chunks).unwrap();
         Self { chunks }
     }
@@ -608,7 +608,7 @@ impl MtmdInputChunks {
     /// Get the number of chunks
     #[must_use]
     pub fn len(&self) -> usize {
-        unsafe { llama_cpp_sys_2::mtmd_input_chunks_size(self.chunks.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_input_chunks_size(self.chunks.as_ptr()) }
     }
 
     /// Check if chunks collection is empty
@@ -625,7 +625,7 @@ impl MtmdInputChunks {
         }
 
         let chunk_ptr =
-            unsafe { llama_cpp_sys_2::mtmd_input_chunks_get(self.chunks.as_ptr(), index) };
+            unsafe { shimmy_llama_cpp_sys_2::mtmd_input_chunks_get(self.chunks.as_ptr(), index) };
 
         // Note: We don't own this chunk, it's owned by the chunks collection
         NonNull::new(chunk_ptr.cast_mut()).map(|ptr| MtmdInputChunk {
@@ -639,7 +639,7 @@ impl MtmdInputChunks {
     /// This is useful for keeping track of KV cache size.
     #[must_use]
     pub fn total_tokens(&self) -> usize {
-        unsafe { llama_cpp_sys_2::mtmd_helper_get_n_tokens(self.chunks.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_helper_get_n_tokens(self.chunks.as_ptr()) }
     }
 
     /// Get total position count across all chunks.
@@ -648,7 +648,7 @@ impl MtmdInputChunks {
     /// but for M-RoPE it is different.
     #[must_use]
     pub fn total_positions(&self) -> i32 {
-        unsafe { llama_cpp_sys_2::mtmd_helper_get_n_pos(self.chunks.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_helper_get_n_pos(self.chunks.as_ptr()) }
     }
 
     /// Evaluate chunks using the multimodal context and LLAMA context.
@@ -682,15 +682,15 @@ impl MtmdInputChunks {
         &self,
         mtmd_ctx: &MtmdContext,
         llama_ctx: &LlamaContext,
-        n_past: llama_cpp_sys_2::llama_pos,
-        seq_id: llama_cpp_sys_2::llama_seq_id,
+        n_past: shimmy_llama_cpp_sys_2::llama_pos,
+        seq_id: shimmy_llama_cpp_sys_2::llama_seq_id,
         n_batch: i32,
         logits_last: bool,
-    ) -> Result<llama_cpp_sys_2::llama_pos, MtmdEvalError> {
-        let mut new_n_past: llama_cpp_sys_2::llama_pos = 0;
+    ) -> Result<shimmy_llama_cpp_sys_2::llama_pos, MtmdEvalError> {
+        let mut new_n_past: shimmy_llama_cpp_sys_2::llama_pos = 0;
 
         let result = unsafe {
-            llama_cpp_sys_2::mtmd_helper_eval_chunks(
+            shimmy_llama_cpp_sys_2::mtmd_helper_eval_chunks(
                 mtmd_ctx.context.as_ptr(),
                 llama_ctx.context.as_ptr(),
                 self.chunks.as_ptr(),
@@ -712,7 +712,7 @@ impl MtmdInputChunks {
 
 impl Drop for MtmdInputChunks {
     fn drop(&mut self) {
-        unsafe { llama_cpp_sys_2::mtmd_input_chunks_free(self.chunks.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_input_chunks_free(self.chunks.as_ptr()) }
     }
 }
 
@@ -723,7 +723,7 @@ impl Drop for MtmdInputChunks {
 /// data and operations are available.
 #[derive(Debug)]
 pub struct MtmdInputChunk {
-    pub(crate) chunk: NonNull<llama_cpp_sys_2::mtmd_input_chunk>,
+    pub(crate) chunk: NonNull<shimmy_llama_cpp_sys_2::mtmd_input_chunk>,
     owned: bool,
 }
 
@@ -731,7 +731,7 @@ impl MtmdInputChunk {
     /// Get the type of this chunk
     #[must_use]
     pub fn chunk_type(&self) -> MtmdInputChunkType {
-        let chunk_type = unsafe { llama_cpp_sys_2::mtmd_input_chunk_get_type(self.chunk.as_ptr()) };
+        let chunk_type = unsafe { shimmy_llama_cpp_sys_2::mtmd_input_chunk_get_type(self.chunk.as_ptr()) };
         MtmdInputChunkType::from(chunk_type)
     }
 
@@ -750,7 +750,7 @@ impl MtmdInputChunk {
 
         let mut n_tokens = 0usize;
         let tokens_ptr = unsafe {
-            llama_cpp_sys_2::mtmd_input_chunk_get_tokens_text(
+            shimmy_llama_cpp_sys_2::mtmd_input_chunk_get_tokens_text(
                 self.chunk.as_ptr(),
                 &raw mut n_tokens,
             )
@@ -771,7 +771,7 @@ impl MtmdInputChunk {
     /// Get the number of tokens in this chunk
     #[must_use]
     pub fn n_tokens(&self) -> usize {
-        unsafe { llama_cpp_sys_2::mtmd_input_chunk_get_n_tokens(self.chunk.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_input_chunk_get_n_tokens(self.chunk.as_ptr()) }
     }
 
     /// Get the number of positions in this chunk.
@@ -779,7 +779,7 @@ impl MtmdInputChunk {
     /// Returns the number of temporal positions (always 1 for M-RoPE, `n_tokens` otherwise).
     #[must_use]
     pub fn n_positions(&self) -> i32 {
-        unsafe { llama_cpp_sys_2::mtmd_input_chunk_get_n_pos(self.chunk.as_ptr()) }
+        unsafe { shimmy_llama_cpp_sys_2::mtmd_input_chunk_get_n_pos(self.chunk.as_ptr()) }
     }
 
     /// Get chunk ID if available.
@@ -787,7 +787,7 @@ impl MtmdInputChunk {
     /// Returns `None` for text chunks, may return an ID for image/audio chunks.
     #[must_use]
     pub fn id(&self) -> Option<String> {
-        let ptr = unsafe { llama_cpp_sys_2::mtmd_input_chunk_get_id(self.chunk.as_ptr()) };
+        let ptr = unsafe { shimmy_llama_cpp_sys_2::mtmd_input_chunk_get_id(self.chunk.as_ptr()) };
         if ptr.is_null() {
             None
         } else {
@@ -812,7 +812,7 @@ impl MtmdInputChunk {
     ///
     /// Returns `MtmdInputChunkError::NullResult` if copying fails.
     pub fn copy(&self) -> Result<Self, MtmdInputChunkError> {
-        let chunk = unsafe { llama_cpp_sys_2::mtmd_input_chunk_copy(self.chunk.as_ptr()) };
+        let chunk = unsafe { shimmy_llama_cpp_sys_2::mtmd_input_chunk_copy(self.chunk.as_ptr()) };
         let chunk = NonNull::new(chunk).ok_or(MtmdInputChunkError::NullResult)?;
         Ok(Self { chunk, owned: true })
     }
@@ -821,7 +821,7 @@ impl MtmdInputChunk {
 impl Drop for MtmdInputChunk {
     fn drop(&mut self) {
         if self.owned {
-            unsafe { llama_cpp_sys_2::mtmd_input_chunk_free(self.chunk.as_ptr()) }
+            unsafe { shimmy_llama_cpp_sys_2::mtmd_input_chunk_free(self.chunk.as_ptr()) }
         }
     }
 }
@@ -850,7 +850,7 @@ impl Drop for MtmdInputChunk {
 #[must_use]
 pub fn mtmd_default_marker() -> &'static str {
     unsafe {
-        let c_str = llama_cpp_sys_2::mtmd_default_marker();
+        let c_str = shimmy_llama_cpp_sys_2::mtmd_default_marker();
         CStr::from_ptr(c_str).to_str().unwrap_or("<__media__>")
     }
 }

@@ -11,12 +11,12 @@ pub mod kv_overrides;
 /// A safe wrapper around `llama_model_params`.
 #[allow(clippy::module_name_repetitions)]
 pub struct LlamaModelParams {
-    pub(crate) params: llama_cpp_sys_2::llama_model_params,
-    kv_overrides: Vec<llama_cpp_sys_2::llama_model_kv_override>,
+    pub(crate) params: shimmy_llama_cpp_sys_2::llama_model_params,
+    kv_overrides: Vec<shimmy_llama_cpp_sys_2::llama_model_kv_override>,
     /// Storage for tensor buffer override patterns (keeps CStrings alive)
     tensor_override_patterns: Vec<CString>,
     /// Tensor buffer overrides (NULL-terminated array)
-    tensor_overrides: Vec<llama_cpp_sys_2::llama_model_tensor_buft_override>,
+    tensor_overrides: Vec<shimmy_llama_cpp_sys_2::llama_model_tensor_buft_override>,
 }
 
 impl Debug for LlamaModelParams {
@@ -96,10 +96,10 @@ impl LlamaModelParams {
 
         // push the next one to ensure we maintain the iterator invariant of ending with a 0
         self.kv_overrides
-            .push(llama_cpp_sys_2::llama_model_kv_override {
+            .push(shimmy_llama_cpp_sys_2::llama_model_kv_override {
                 key: [0; 128],
                 tag: 0,
-                __bindgen_anon_1: llama_cpp_sys_2::llama_model_kv_override__bindgen_ty_1 {
+                __bindgen_anon_1: shimmy_llama_cpp_sys_2::llama_model_kv_override__bindgen_ty_1 {
                     val_i64: 0,
                 },
             });
@@ -236,10 +236,10 @@ impl LlamaModelParams {
         self.tensor_override_patterns.push(c_pattern);
         
         // Get CPU buffer type
-        let cpu_buft = unsafe { llama_cpp_sys_2::ggml_backend_cpu_buffer_type() };
+        let cpu_buft = unsafe { shimmy_llama_cpp_sys_2::ggml_backend_cpu_buffer_type() };
         
         // Create override entry pointing to the stored CString
-        let override_entry = llama_cpp_sys_2::llama_model_tensor_buft_override {
+        let override_entry = shimmy_llama_cpp_sys_2::llama_model_tensor_buft_override {
             pattern: self.tensor_override_patterns.last().unwrap().as_ptr(),
             buft: cpu_buft,
         };
@@ -255,7 +255,7 @@ impl LlamaModelParams {
         self.tensor_overrides.push(override_entry);
         
         // Re-add NULL terminator (pattern=NULL signals end of array to C)
-        self.tensor_overrides.push(llama_cpp_sys_2::llama_model_tensor_buft_override {
+        self.tensor_overrides.push(shimmy_llama_cpp_sys_2::llama_model_tensor_buft_override {
             pattern: std::ptr::null(),
             buft: std::ptr::null_mut(),
         });
@@ -277,14 +277,14 @@ impl LlamaModelParams {
 /// ```
 impl Default for LlamaModelParams {
     fn default() -> Self {
-        let default_params = unsafe { llama_cpp_sys_2::llama_model_default_params() };
+        let default_params = unsafe { shimmy_llama_cpp_sys_2::llama_model_default_params() };
         LlamaModelParams {
             params: default_params,
             // push the next one to ensure we maintain the iterator invariant of ending with a 0      
-            kv_overrides: vec![llama_cpp_sys_2::llama_model_kv_override {
+            kv_overrides: vec![shimmy_llama_cpp_sys_2::llama_model_kv_override {
                 key: [0; 128],
                 tag: 0,
-                __bindgen_anon_1: llama_cpp_sys_2::llama_model_kv_override__bindgen_ty_1 {
+                __bindgen_anon_1: shimmy_llama_cpp_sys_2::llama_model_kv_override__bindgen_ty_1 {
                     val_i64: 0,
                 },
             }],

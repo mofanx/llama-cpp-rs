@@ -97,7 +97,7 @@ pub enum KvCacheType {
     /// the runtime will operate with that type).
     /// This variant preserves API compatibility when new `ggml_type` values are
     /// introduced in the future.
-    Unknown(llama_cpp_sys_2::ggml_type),
+    Unknown(shimmy_llama_cpp_sys_2::ggml_type),
     F32,
     F16,
     Q4_0,
@@ -132,81 +132,81 @@ pub enum KvCacheType {
     MXFP4,
 }
 
-impl From<KvCacheType> for llama_cpp_sys_2::ggml_type {
+impl From<KvCacheType> for shimmy_llama_cpp_sys_2::ggml_type {
     fn from(value: KvCacheType) -> Self {
         match value {
             KvCacheType::Unknown(raw) => raw,
-            KvCacheType::F32 => llama_cpp_sys_2::GGML_TYPE_F32,
-            KvCacheType::F16 => llama_cpp_sys_2::GGML_TYPE_F16,
-            KvCacheType::Q4_0 => llama_cpp_sys_2::GGML_TYPE_Q4_0,
-            KvCacheType::Q4_1 => llama_cpp_sys_2::GGML_TYPE_Q4_1,
-            KvCacheType::Q5_0 => llama_cpp_sys_2::GGML_TYPE_Q5_0,
-            KvCacheType::Q5_1 => llama_cpp_sys_2::GGML_TYPE_Q5_1,
-            KvCacheType::Q8_0 => llama_cpp_sys_2::GGML_TYPE_Q8_0,
-            KvCacheType::Q8_1 => llama_cpp_sys_2::GGML_TYPE_Q8_1,
-            KvCacheType::Q2_K => llama_cpp_sys_2::GGML_TYPE_Q2_K,
-            KvCacheType::Q3_K => llama_cpp_sys_2::GGML_TYPE_Q3_K,
-            KvCacheType::Q4_K => llama_cpp_sys_2::GGML_TYPE_Q4_K,
-            KvCacheType::Q5_K => llama_cpp_sys_2::GGML_TYPE_Q5_K,
-            KvCacheType::Q6_K => llama_cpp_sys_2::GGML_TYPE_Q6_K,
-            KvCacheType::Q8_K => llama_cpp_sys_2::GGML_TYPE_Q8_K,
-            KvCacheType::IQ2_XXS => llama_cpp_sys_2::GGML_TYPE_IQ2_XXS,
-            KvCacheType::IQ2_XS => llama_cpp_sys_2::GGML_TYPE_IQ2_XS,
-            KvCacheType::IQ3_XXS => llama_cpp_sys_2::GGML_TYPE_IQ3_XXS,
-            KvCacheType::IQ1_S => llama_cpp_sys_2::GGML_TYPE_IQ1_S,
-            KvCacheType::IQ4_NL => llama_cpp_sys_2::GGML_TYPE_IQ4_NL,
-            KvCacheType::IQ3_S => llama_cpp_sys_2::GGML_TYPE_IQ3_S,
-            KvCacheType::IQ2_S => llama_cpp_sys_2::GGML_TYPE_IQ2_S,
-            KvCacheType::IQ4_XS => llama_cpp_sys_2::GGML_TYPE_IQ4_XS,
-            KvCacheType::I8 => llama_cpp_sys_2::GGML_TYPE_I8,
-            KvCacheType::I16 => llama_cpp_sys_2::GGML_TYPE_I16,
-            KvCacheType::I32 => llama_cpp_sys_2::GGML_TYPE_I32,
-            KvCacheType::I64 => llama_cpp_sys_2::GGML_TYPE_I64,
-            KvCacheType::F64 => llama_cpp_sys_2::GGML_TYPE_F64,
-            KvCacheType::IQ1_M => llama_cpp_sys_2::GGML_TYPE_IQ1_M,
-            KvCacheType::BF16 => llama_cpp_sys_2::GGML_TYPE_BF16,
-            KvCacheType::TQ1_0 => llama_cpp_sys_2::GGML_TYPE_TQ1_0,
-            KvCacheType::TQ2_0 => llama_cpp_sys_2::GGML_TYPE_TQ2_0,
-            KvCacheType::MXFP4 => llama_cpp_sys_2::GGML_TYPE_MXFP4,
+            KvCacheType::F32 => shimmy_llama_cpp_sys_2::GGML_TYPE_F32,
+            KvCacheType::F16 => shimmy_llama_cpp_sys_2::GGML_TYPE_F16,
+            KvCacheType::Q4_0 => shimmy_llama_cpp_sys_2::GGML_TYPE_Q4_0,
+            KvCacheType::Q4_1 => shimmy_llama_cpp_sys_2::GGML_TYPE_Q4_1,
+            KvCacheType::Q5_0 => shimmy_llama_cpp_sys_2::GGML_TYPE_Q5_0,
+            KvCacheType::Q5_1 => shimmy_llama_cpp_sys_2::GGML_TYPE_Q5_1,
+            KvCacheType::Q8_0 => shimmy_llama_cpp_sys_2::GGML_TYPE_Q8_0,
+            KvCacheType::Q8_1 => shimmy_llama_cpp_sys_2::GGML_TYPE_Q8_1,
+            KvCacheType::Q2_K => shimmy_llama_cpp_sys_2::GGML_TYPE_Q2_K,
+            KvCacheType::Q3_K => shimmy_llama_cpp_sys_2::GGML_TYPE_Q3_K,
+            KvCacheType::Q4_K => shimmy_llama_cpp_sys_2::GGML_TYPE_Q4_K,
+            KvCacheType::Q5_K => shimmy_llama_cpp_sys_2::GGML_TYPE_Q5_K,
+            KvCacheType::Q6_K => shimmy_llama_cpp_sys_2::GGML_TYPE_Q6_K,
+            KvCacheType::Q8_K => shimmy_llama_cpp_sys_2::GGML_TYPE_Q8_K,
+            KvCacheType::IQ2_XXS => shimmy_llama_cpp_sys_2::GGML_TYPE_IQ2_XXS,
+            KvCacheType::IQ2_XS => shimmy_llama_cpp_sys_2::GGML_TYPE_IQ2_XS,
+            KvCacheType::IQ3_XXS => shimmy_llama_cpp_sys_2::GGML_TYPE_IQ3_XXS,
+            KvCacheType::IQ1_S => shimmy_llama_cpp_sys_2::GGML_TYPE_IQ1_S,
+            KvCacheType::IQ4_NL => shimmy_llama_cpp_sys_2::GGML_TYPE_IQ4_NL,
+            KvCacheType::IQ3_S => shimmy_llama_cpp_sys_2::GGML_TYPE_IQ3_S,
+            KvCacheType::IQ2_S => shimmy_llama_cpp_sys_2::GGML_TYPE_IQ2_S,
+            KvCacheType::IQ4_XS => shimmy_llama_cpp_sys_2::GGML_TYPE_IQ4_XS,
+            KvCacheType::I8 => shimmy_llama_cpp_sys_2::GGML_TYPE_I8,
+            KvCacheType::I16 => shimmy_llama_cpp_sys_2::GGML_TYPE_I16,
+            KvCacheType::I32 => shimmy_llama_cpp_sys_2::GGML_TYPE_I32,
+            KvCacheType::I64 => shimmy_llama_cpp_sys_2::GGML_TYPE_I64,
+            KvCacheType::F64 => shimmy_llama_cpp_sys_2::GGML_TYPE_F64,
+            KvCacheType::IQ1_M => shimmy_llama_cpp_sys_2::GGML_TYPE_IQ1_M,
+            KvCacheType::BF16 => shimmy_llama_cpp_sys_2::GGML_TYPE_BF16,
+            KvCacheType::TQ1_0 => shimmy_llama_cpp_sys_2::GGML_TYPE_TQ1_0,
+            KvCacheType::TQ2_0 => shimmy_llama_cpp_sys_2::GGML_TYPE_TQ2_0,
+            KvCacheType::MXFP4 => shimmy_llama_cpp_sys_2::GGML_TYPE_MXFP4,
         }
     }
 }
 
-impl From<llama_cpp_sys_2::ggml_type> for KvCacheType {
-    fn from(value: llama_cpp_sys_2::ggml_type) -> Self {
+impl From<shimmy_llama_cpp_sys_2::ggml_type> for KvCacheType {
+    fn from(value: shimmy_llama_cpp_sys_2::ggml_type) -> Self {
         match value {
-            x if x == llama_cpp_sys_2::GGML_TYPE_F32 => KvCacheType::F32,
-            x if x == llama_cpp_sys_2::GGML_TYPE_F16 => KvCacheType::F16,
-            x if x == llama_cpp_sys_2::GGML_TYPE_Q4_0 => KvCacheType::Q4_0,
-            x if x == llama_cpp_sys_2::GGML_TYPE_Q4_1 => KvCacheType::Q4_1,
-            x if x == llama_cpp_sys_2::GGML_TYPE_Q5_0 => KvCacheType::Q5_0,
-            x if x == llama_cpp_sys_2::GGML_TYPE_Q5_1 => KvCacheType::Q5_1,
-            x if x == llama_cpp_sys_2::GGML_TYPE_Q8_0 => KvCacheType::Q8_0,
-            x if x == llama_cpp_sys_2::GGML_TYPE_Q8_1 => KvCacheType::Q8_1,
-            x if x == llama_cpp_sys_2::GGML_TYPE_Q2_K => KvCacheType::Q2_K,
-            x if x == llama_cpp_sys_2::GGML_TYPE_Q3_K => KvCacheType::Q3_K,
-            x if x == llama_cpp_sys_2::GGML_TYPE_Q4_K => KvCacheType::Q4_K,
-            x if x == llama_cpp_sys_2::GGML_TYPE_Q5_K => KvCacheType::Q5_K,
-            x if x == llama_cpp_sys_2::GGML_TYPE_Q6_K => KvCacheType::Q6_K,
-            x if x == llama_cpp_sys_2::GGML_TYPE_Q8_K => KvCacheType::Q8_K,
-            x if x == llama_cpp_sys_2::GGML_TYPE_IQ2_XXS => KvCacheType::IQ2_XXS,
-            x if x == llama_cpp_sys_2::GGML_TYPE_IQ2_XS => KvCacheType::IQ2_XS,
-            x if x == llama_cpp_sys_2::GGML_TYPE_IQ3_XXS => KvCacheType::IQ3_XXS,
-            x if x == llama_cpp_sys_2::GGML_TYPE_IQ1_S => KvCacheType::IQ1_S,
-            x if x == llama_cpp_sys_2::GGML_TYPE_IQ4_NL => KvCacheType::IQ4_NL,
-            x if x == llama_cpp_sys_2::GGML_TYPE_IQ3_S => KvCacheType::IQ3_S,
-            x if x == llama_cpp_sys_2::GGML_TYPE_IQ2_S => KvCacheType::IQ2_S,
-            x if x == llama_cpp_sys_2::GGML_TYPE_IQ4_XS => KvCacheType::IQ4_XS,
-            x if x == llama_cpp_sys_2::GGML_TYPE_I8 => KvCacheType::I8,
-            x if x == llama_cpp_sys_2::GGML_TYPE_I16 => KvCacheType::I16,
-            x if x == llama_cpp_sys_2::GGML_TYPE_I32 => KvCacheType::I32,
-            x if x == llama_cpp_sys_2::GGML_TYPE_I64 => KvCacheType::I64,
-            x if x == llama_cpp_sys_2::GGML_TYPE_F64 => KvCacheType::F64,
-            x if x == llama_cpp_sys_2::GGML_TYPE_IQ1_M => KvCacheType::IQ1_M,
-            x if x == llama_cpp_sys_2::GGML_TYPE_BF16 => KvCacheType::BF16,
-            x if x == llama_cpp_sys_2::GGML_TYPE_TQ1_0 => KvCacheType::TQ1_0,
-            x if x == llama_cpp_sys_2::GGML_TYPE_TQ2_0 => KvCacheType::TQ2_0,
-            x if x == llama_cpp_sys_2::GGML_TYPE_MXFP4 => KvCacheType::MXFP4,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_F32 => KvCacheType::F32,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_F16 => KvCacheType::F16,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_Q4_0 => KvCacheType::Q4_0,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_Q4_1 => KvCacheType::Q4_1,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_Q5_0 => KvCacheType::Q5_0,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_Q5_1 => KvCacheType::Q5_1,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_Q8_0 => KvCacheType::Q8_0,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_Q8_1 => KvCacheType::Q8_1,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_Q2_K => KvCacheType::Q2_K,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_Q3_K => KvCacheType::Q3_K,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_Q4_K => KvCacheType::Q4_K,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_Q5_K => KvCacheType::Q5_K,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_Q6_K => KvCacheType::Q6_K,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_Q8_K => KvCacheType::Q8_K,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_IQ2_XXS => KvCacheType::IQ2_XXS,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_IQ2_XS => KvCacheType::IQ2_XS,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_IQ3_XXS => KvCacheType::IQ3_XXS,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_IQ1_S => KvCacheType::IQ1_S,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_IQ4_NL => KvCacheType::IQ4_NL,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_IQ3_S => KvCacheType::IQ3_S,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_IQ2_S => KvCacheType::IQ2_S,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_IQ4_XS => KvCacheType::IQ4_XS,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_I8 => KvCacheType::I8,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_I16 => KvCacheType::I16,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_I32 => KvCacheType::I32,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_I64 => KvCacheType::I64,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_F64 => KvCacheType::F64,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_IQ1_M => KvCacheType::IQ1_M,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_BF16 => KvCacheType::BF16,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_TQ1_0 => KvCacheType::TQ1_0,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_TQ2_0 => KvCacheType::TQ2_0,
+            x if x == shimmy_llama_cpp_sys_2::GGML_TYPE_MXFP4 => KvCacheType::MXFP4,
             _ => KvCacheType::Unknown(value),
         }
     }
@@ -234,7 +234,7 @@ impl From<llama_cpp_sys_2::ggml_type> for KvCacheType {
     clippy::module_name_repetitions
 )]
 pub struct LlamaContextParams {
-    pub(crate) context_params: llama_cpp_sys_2::llama_context_params,
+    pub(crate) context_params: shimmy_llama_cpp_sys_2::llama_context_params,
 }
 
 /// SAFETY: we do not currently allow setting or reading the pointers that cause this to not be automatically send or sync.
@@ -339,7 +339,7 @@ impl LlamaContextParams {
     #[must_use]
     pub fn with_flash_attention_policy(
         mut self,
-        policy: llama_cpp_sys_2::llama_flash_attn_type,
+        policy: shimmy_llama_cpp_sys_2::llama_flash_attn_type,
     ) -> Self {
         self.context_params.flash_attn_type = policy;
         self
@@ -347,7 +347,7 @@ impl LlamaContextParams {
 
     /// Get the flash attention policy
     #[must_use]
-    pub fn flash_attention_policy(&self) -> llama_cpp_sys_2::llama_flash_attn_type {
+    pub fn flash_attention_policy(&self) -> shimmy_llama_cpp_sys_2::llama_flash_attn_type {
         self.context_params.flash_attn_type
     }
 
@@ -561,7 +561,7 @@ impl LlamaContextParams {
     ///
     /// ```no_run
     /// extern "C" fn cb_eval_fn(
-    ///     t: *mut llama_cpp_sys_2::ggml_tensor,
+    ///     t: *mut shimmy_llama_cpp_sys_2::ggml_tensor,
     ///     ask: bool,
     ///     user_data: *mut std::ffi::c_void,
     /// ) -> bool {
@@ -574,7 +574,7 @@ impl LlamaContextParams {
     #[must_use]
     pub fn with_cb_eval(
         mut self,
-        cb_eval: llama_cpp_sys_2::ggml_backend_sched_eval_callback,
+        cb_eval: shimmy_llama_cpp_sys_2::ggml_backend_sched_eval_callback,
     ) -> Self {
         self.context_params.cb_eval = cb_eval;
         self
@@ -747,7 +747,7 @@ impl LlamaContextParams {
 /// ```
 impl Default for LlamaContextParams {
     fn default() -> Self {
-        let context_params = unsafe { llama_cpp_sys_2::llama_context_default_params() };
+        let context_params = unsafe { shimmy_llama_cpp_sys_2::llama_context_default_params() };
         Self { context_params }
     }
 }
