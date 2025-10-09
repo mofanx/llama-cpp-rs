@@ -1,0 +1,18 @@
+PUNCH Quality Report: Code Quality Analysis - llama-cpp-rs
+Generated: 2025-09-20 21:43:41
+
+SUMMARY
+=======
+Total Components: 446
+Average Score: 78.0
+Median Score: 77.8
+Total Issues: 362
+
+GRADE DISTRIBUTION
+==================
+C+: 342 (76.7%)
+B: 80 (17.9%)
+C: 18 (4.0%)
+D: 1 (0.2%)
+F: 3 (0.7%)
+D+: 2 (0.4%)

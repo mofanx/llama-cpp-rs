@@ -1,10 +1,10 @@
 [package]
-name = "llama-cpp-sys-2"
-description = "Low Level Bindings to llama.cpp"
+name = "shimmy-llama-cpp-sys-2"
+description = "Low Level Bindings to llama.cpp with MoE CPU offloading support"
 version = "0.1.123"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/utilityai/llama-cpp-rs"
+repository = "https://github.com/Michael-A-Kuykendall/llama-cpp-rs"
 links = "llama"
 
 include = [

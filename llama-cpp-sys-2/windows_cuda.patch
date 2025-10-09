@@ -1,0 +1,13 @@
+421a422,434
+>
+>     // Fix bindgen stdbool.h issue on Windows MSVC with CUDA
+>     if matches!(target_os, TargetOs::Windows(WindowsVariant::Msvc)) && cfg!(feature = "cuda") {
+>         bindings_builder = bindings_builder
+>             .clang_arg("-include")
+>             .clang_arg("stdbool.h");
+>
+>         debug_log!(
+>             "Added stdbool.h include for Windows MSVC CUDA build to fix bindgen compatibility"
+>         );
+>     }
+>

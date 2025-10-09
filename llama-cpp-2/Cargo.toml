@@ -1,16 +1,16 @@
 [package]
-name = "llama-cpp-2"
-description = "llama.cpp bindings for Rust"
+name = "shimmy-llama-cpp-2"
+description = "llama.cpp bindings for Rust with MoE CPU offloading support"
 version = "0.1.123"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/utilityai/llama-cpp-rs"
+repository = "https://github.com/Michael-A-Kuykendall/llama-cpp-rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 enumflags2 = "0.7.12"
-llama-cpp-sys-2 = { path = "../llama-cpp-sys-2", version = "0.1.123" }
+shimmy-shimmy-llama-cpp-sys-2 = { path = "../shimmy-llama-cpp-sys-2", version = "0.1.123" }
 thiserror = { workspace = true }
 tracing = { workspace = true }
 tracing-core = { workspace = true }
@@ -21,21 +21,21 @@ tracing-subscriber = { workspace = true }
 
 [features]
 default = ["openmp", "android-shared-stdcxx"]
-cuda = ["llama-cpp-sys-2/cuda"]
-cuda-no-vmm = ["cuda", "llama-cpp-sys-2/cuda-no-vmm"]
-metal = ["llama-cpp-sys-2/metal"]
-dynamic-link = ["llama-cpp-sys-2/dynamic-link"]
-vulkan = ["llama-cpp-sys-2/vulkan"]
-native = ["llama-cpp-sys-2/native"]
-openmp = ["llama-cpp-sys-2/openmp"]
+cuda = ["shimmy-llama-cpp-sys-2/cuda"]
+cuda-no-vmm = ["cuda", "shimmy-llama-cpp-sys-2/cuda-no-vmm"]
+metal = ["shimmy-llama-cpp-sys-2/metal"]
+dynamic-link = ["shimmy-llama-cpp-sys-2/dynamic-link"]
+vulkan = ["shimmy-llama-cpp-sys-2/vulkan"]
+native = ["shimmy-llama-cpp-sys-2/native"]
+openmp = ["shimmy-llama-cpp-sys-2/openmp"]
 sampler = []
 # Only has an impact on Android.
-android-shared-stdcxx = ["llama-cpp-sys-2/shared-stdcxx"]
-mtmd = ["llama-cpp-sys-2/mtmd"]
+android-shared-stdcxx = ["shimmy-llama-cpp-sys-2/shared-stdcxx"]
+mtmd = ["shimmy-llama-cpp-sys-2/mtmd"]
 
 
 [target.'cfg(all(target_os = "macos", any(target_arch = "aarch64", target_arch = "arm64")))'.dependencies]
-llama-cpp-sys-2 = { path = "../llama-cpp-sys-2", version = "0.1.123", features = [
+shimmy-llama-cpp-sys-2 = { path = "../shimmy-llama-cpp-sys-2", version = "0.1.123", features = [
     "metal",
 ] }
 
