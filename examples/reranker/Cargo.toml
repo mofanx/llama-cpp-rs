@@ -1,20 +1,20 @@
 [package]
 name = "reranker"
-version = "0.1.86"
+version = "0.1.123"
 edition = "2021"
 
 [dependencies]
-llama-cpp-2 = { path = "../../llama-cpp-2", version = "0.1.86" }
+shimmy-llama-cpp-2 = { path = "../../llama-cpp-2", version = "0.1.123" }
 hf-hub = { workspace = true }
 clap = { workspace = true, features = ["derive"] }
 anyhow = { workspace = true }
 encoding_rs = { workspace = true }
 
 [features]
-cuda = ["llama-cpp-2/cuda"]
-metal = ["llama-cpp-2/metal"]
-native = ["llama-cpp-2/native"]
-vulkan = ["llama-cpp-2/vulkan"]
+cuda = ["shimmy-llama-cpp-2/cuda"]
+metal = ["shimmy-llama-cpp-2/metal"]
+native = ["shimmy-llama-cpp-2/native"]
+vulkan = ["shimmy-llama-cpp-2/vulkan"]
 
 [lints]
 workspace = true
