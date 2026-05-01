@@ -318,10 +318,11 @@ impl<'model> LlamaContext<'model> {
         scale: f32,
     ) -> Result<(), LlamaLoraAdapterSetError> {
         let err_code = unsafe {
-            shimmy_llama_cpp_sys_2::llama_set_adapter_lora(
+            shimmy_llama_cpp_sys_2::llama_set_adapters_lora(
                 self.context.as_ptr(),
-                adapter.lora_adapter.as_ptr(),
-                scale,
+                &mut adapter.lora_adapter.as_ptr(),
+                1,
+                &mut scale,
             )
         };
         if err_code != 0 {
@@ -341,10 +342,13 @@ impl<'model> LlamaContext<'model> {
         &self,
         adapter: &mut LlamaLoraAdapter,
     ) -> Result<(), LlamaLoraAdapterRemoveError> {
+        // New llama.cpp API uses llama_set_adapters_lora with NULL to remove
         let err_code = unsafe {
-            shimmy_llama_cpp_sys_2::llama_rm_adapter_lora(
+            shimmy_llama_cpp_sys_2::llama_set_adapters_lora(
                 self.context.as_ptr(),
-                adapter.lora_adapter.as_ptr(),
+                std::ptr::null_mut(),
+                0,
+                std::ptr::null_mut(),
             )
         };
         if err_code != 0 {
