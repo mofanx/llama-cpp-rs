@@ -317,10 +317,11 @@ impl<'model> LlamaContext<'model> {
         adapter: &mut LlamaLoraAdapter,
         mut scale: f32,
     ) -> Result<(), LlamaLoraAdapterSetError> {
+        let mut adapter_ptr = adapter.lora_adapter.as_ptr();
         let err_code = unsafe {
             shimmy_llama_cpp_sys_2::llama_set_adapters_lora(
                 self.context.as_ptr(),
-                &mut adapter.lora_adapter.as_ptr(),
+                &mut adapter_ptr,
                 1,
                 &mut scale,
             )
