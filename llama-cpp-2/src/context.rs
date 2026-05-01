@@ -315,7 +315,7 @@ impl<'model> LlamaContext<'model> {
     pub fn lora_adapter_set(
         &self,
         adapter: &mut LlamaLoraAdapter,
-        scale: f32,
+        mut scale: f32,
     ) -> Result<(), LlamaLoraAdapterSetError> {
         let err_code = unsafe {
             shimmy_llama_cpp_sys_2::llama_set_adapters_lora(
